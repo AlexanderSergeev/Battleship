@@ -24,6 +24,7 @@ public class AIRandom extends AIBase {
 			return Field.SHUT_MISSED;
 		}
 		Cell cell = list.get(ai.rand.nextInt(list.size()));
+		System.out.println(cell.x + " " + cell.y);
 		int shot = cell.doShot();
 		if (shot == Field.SHUT_INJURED) {
 			ai.action = new AIPlace(ai);
