@@ -14,7 +14,7 @@ import com.rabbitmq.client.Channel;
 
 public class Send {
 
-	private final static String QUEUE_NAME = "hello";
+	private final static String QUEUE_NAME = "hello2";
 
 	public static void main(String[] argv) throws Exception {
 		send("Hello");
