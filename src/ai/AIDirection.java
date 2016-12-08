@@ -5,23 +5,22 @@ import java.util.ArrayList;
 import logic.*;
 
 public class AIDirection extends AIBase {
-	
+
 	public AIDirection(AI ai) {
 		super(ai);
 	}
 
-	
 	public void draw(ArrayList<Cell> list, int i, int j) {
 		int m = x;
 		int n = y;
 		do {
-			m+= i;
-			n+= j;
-		} while ( ai.getField().isBound(m, n) && (ai.getField().getCell(m, n).getState() == Cell.CELL_INJURED) );
-		
-		if (ai.getField().isBound(m, n) ) {
+			m += i;
+			n += j;
+		} while (ai.getField().isBound(m, n) && (ai.getField().getCell(m, n).getState() == Cell.CELL_INJURED));
+
+		if (ai.getField().isBound(m, n)) {
 			Cell e = ai.getField().getCell(m, n);
-			if (! e.isMark() ) {
+			if (!e.isMark()) {
 				list.add(e);
 			}
 		}
@@ -34,7 +33,8 @@ public class AIDirection extends AIBase {
 		draw(list, -dx, -dy);
 
 		if (list.size() > 0) {
-			return list.get(ai.rand.nextInt(list.size())).doShot();
+			Cell cell = list.get(ai.rand.nextInt(list.size()));
+			return cell.doShot();
 		}
 
 		ai.action = new AIRandom(ai);
