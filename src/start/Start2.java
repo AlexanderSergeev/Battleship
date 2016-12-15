@@ -19,6 +19,7 @@ import logic.Field;
 
 public class Start2 {
 	static int currentPlayer = 1;
+	static String shot;
 	
 	private static ArrayList<ISubscriber> listeners = new ArrayList<ISubscriber>();
 	// public int currentPlayer;
@@ -40,10 +41,9 @@ public class Start2 {
 		ConnectionFactory factory = new ConnectionFactory();
 		// If we wanted to connect to a broker on a different machine we'd
 		// simply specify its name or IP address here.
-		factory.setHost("localhost");
+		factory.setHost("localhost"); 
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
-		System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 		Consumer consumer = new DefaultConsumer(channel) {
 			@Override
 			public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
@@ -51,7 +51,7 @@ public class Start2 {
 				String message = new String(body, "UTF-8");
 				
 				System.out.println(" [x] Received '" + message + "'");
-				currentPlayer = Integer.parseInt(splitter(message));
+				shot = message;
 			}
 		};
 		channel.basicConsume(QUEUE_NAME, true, consumer);
@@ -65,26 +65,48 @@ public class Start2 {
 		while (enableShot) {
 			if (currentPlayer == 0) { // Ходит bot#1
 				System.out.println("His shot");
-				// TODO send - делаю выстрел
-
-				//while (ai.doShot() != Field.SHUT_MISSED);
+				
+				Consumer consumer2 = new DefaultConsumer(channel) {
+					@Override
+					public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
+							byte[] body) throws IOException {
+						String message = new String(body, "UTF-8");
+						
+						System.out.println(" [x] Received '" + message + "'");
+						currentPlayer = Integer.parseInt(splitter(message));
+					}
+				};
+				channel.basicConsume(QUEUE_NAME, true, consumer2);
+				Thread.sleep(2000);
+				
 				
 				currentPlayer = 1;
 			}
 			if (currentPlayer == 1) {
 				System.out.println("My shot");
-				//TODO ЗДЕСЬ ПИСАТЬ КОД ДЛ ЭТОГО БОТА! 
+				// 1 - missed
+				// 2 - injured
+				// 3 - killed
 				while (ai.doShot() != Field.SHUT_MISSED);
-				System.out.println(ai.doShot());
 				currentPlayer = 0;
 			}
 			updateSubscribers();
 
+			
 			if (playerFieldPlayer.getNumLiveShips() == 0) {
-				enableShot = false;
-				System.out.println("You won!!!");
-				break;
+				if (currentPlayer == 1) {
+					enableShot = false;
+					System.out.println("You won!!!");
+					break;
+				}
+				else if (currentPlayer == 0) {
+					enableShot = false;
+					System.out.println("You lose!!!");
+					break;
+				}
 			}
+			
+
 		}
 
 	}
